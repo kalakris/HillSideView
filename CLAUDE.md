@@ -74,6 +74,67 @@ docker run --rm -v $(pwd):/board setsoft/kicad_auto:latest \
 
 Output location: `hillsideview46/doc_out/`
 
+### KiCad Python CLI Tools
+
+KiCad 7.0.11 is installed in the environment and provides both CLI tools and Python API for programmatic PCB manipulation.
+
+**Installation** (already done in this environment):
+```bash
+apt-get update && apt-get install -y kicad
+```
+
+**Python API Usage**:
+```python
+import pcbnew
+
+# Load the PCB
+board = pcbnew.LoadBoard("hillsideview46/hillsideview46.kicad_pcb")
+
+# Get board information
+print(f"Board size: {board.ComputeBoundingBox().GetWidth()/1e6:.2f} x {board.ComputeBoundingBox().GetHeight()/1e6:.2f} mm")
+print(f"Footprints: {len(list(board.GetFootprints()))}")
+print(f"Copper layers: {board.GetCopperLayerCount()}")
+
+# Iterate through footprints
+for footprint in board.GetFootprints():
+    print(f"{footprint.GetReference()}: {footprint.GetFPID().GetLibItemName()}")
+
+# Save modifications
+pcbnew.SaveBoard("output.kicad_pcb", board)
+```
+
+**CLI Tools**:
+```bash
+# Check version
+kicad-cli version
+
+# Export gerbers
+kicad-cli pcb export gerbers --output gerber/ hillsideview46/hillsideview46.kicad_pcb
+
+# Export drill files
+kicad-cli pcb export drill --output gerber/ hillsideview46/hillsideview46.kicad_pcb
+
+# Export position file
+kicad-cli pcb export pos --output pcba/ hillsideview46/hillsideview46.kicad_pcb
+
+# Export STEP file
+kicad-cli pcb export step --output 3d/ hillsideview46/hillsideview46.kicad_pcb
+
+# Export PDF
+kicad-cli pcb export pdf --output docs/ hillsideview46/hillsideview46.kicad_pcb
+```
+
+**Common Python API Operations**:
+- `pcbnew.LoadBoard(path)` - Load a PCB file
+- `board.GetFootprints()` - Get all footprints
+- `board.GetTracks()` - Get all tracks
+- `board.GetDrawings()` - Get all drawings
+- `footprint.GetReference()` - Get component reference (e.g., "D1")
+- `footprint.GetValue()` - Get component value
+- `footprint.GetPosition()` - Get position in nanometers
+- `footprint.SetPosition(pos)` - Set position
+- `pcbnew.SaveBoard(path, board)` - Save PCB file
+
 ## KiCad Design Files
 
 - **hillsideview46.kicad_sch**: Schematic with MCU, switch matrix, display, and peripheral connections
